@@ -1,0 +1,14 @@
+# Compiled class and JAR files
+/target/
+/url-shortner/target/
+*.class
+*.jar
+# IDE and OS files
+/.idea/
+*.iml
+*.log
+.DS_Store
+Thumbs.db
+# Maven
+/logs/
+/.mvn/
