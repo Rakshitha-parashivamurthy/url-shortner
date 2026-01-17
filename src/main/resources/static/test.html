@@ -65,47 +65,56 @@ button {
 </div>
 
 <script>
-const API_BASE = "https://url-shortner-93v4.onrender.com";
+    const BASE_URL = "https://url-shortner-93v4.onrender.com";
 
-async function shortenUrl() {
-    const url = document.getElementById("urlInput").value;
-    const result = document.getElementById("result");
+    async function shortenUrl() {
+        const originalUrl = document.getElementById("originalUrl").value;
+        const resultDiv = document.getElementById("result");
 
-    if (!url) {
-        showResult("Please enter a URL", "error");
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/url/shorten?originalUrl=${encodeURIComponent(url)}`,
-            { method: "POST" }
-        );
-
-        if (!response.ok) {
-            throw new Error("Server error");
+        if (!originalUrl) {
+            showResult("❌ Please enter a valid URL", "error");
+            return;
         }
 
-        const data = await response.json();
-        const shortLink = `${API_BASE}/redirect/${data.shortUrl}`;
+        showResult("⏳ Shortening URL...", "loading");
 
-        showResult(
-            `<strong>Short URL:</strong><br>
-             <a href="${shortLink}" target="_blank">${shortLink}</a>`,
-            "success"
-        );
+        try {
+            const response = await fetch(
+                `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(originalUrl)}`,
+                { method: "POST" }
+            );
 
-    } catch (err) {
-        showResult("❌ Failed to connect to server", "error");
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text);
+            }
+
+            const data = await response.json();
+            const shortLink = `${BASE_URL}/redirect/${data.shortUrl}`;
+
+            showResult(`
+                ✅ <b>URL Shortened Successfully</b><br><br>
+                <b>Original:</b> <a href="${data.originalUrl}" target="_blank">${data.originalUrl}</a><br>
+                <b>Short URL:</b> <a href="${shortLink}" target="_blank">${shortLink}</a><br><br>
+                <button onclick="copyText('${shortLink}')">📋 Copy</button>
+            `, "success");
+
+        } catch (err) {
+            showResult("❌ Backend not reachable. Please try again in 10 seconds.", "error");
+        }
     }
-}
 
-function showResult(msg, type) {
-    const result = document.getElementById("result");
-    result.style.display = "block";
-    result.className = `result ${type}`;
-    result.innerHTML = msg;
-}
+    function copyText(text) {
+        navigator.clipboard.writeText(text);
+        alert("Copied!");
+    }
+
+    function showResult(msg, type) {
+        const div = document.getElementById("result");
+        div.className = `result ${type}`;
+        div.style.display = "block";
+        div.innerHTML = msg;
+    }
 </script>
 </body>
 </html>
