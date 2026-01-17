@@ -1,120 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>URL Shortener Test</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    padding: 20px;
-}
-.container {
-    max-width: 600px;
-    margin: auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-h1 {
-    text-align: center;
-}
-input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-}
-button {
-    margin-top: 15px;
-    padding: 10px;
-    width: 100%;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.result {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 5px;
-}
-.success {
-    background: #d4edda;
-    color: #155724;
-}
-.error {
-    background: #f8d7da;
-    color: #721c24;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>URL Shortener Test</title>
 </head>
+<body style="font-family: Arial; padding: 30px">
 
-<body>
-<div class="container">
-    <h1>🔗 URL Shortener</h1>
+<h2>🔗 URL Shortener Test</h2>
 
-    <input type="url" id="urlInput" placeholder="https://example.com" required>
+<input type="text" id="url" placeholder="https://example.com" style="width: 300px">
+<button onclick="shorten()">Shorten</button>
 
-    <button onclick="shortenUrl()">Shorten URL</button>
-
-    <div id="result" class="result" style="display:none;"></div>
-</div>
+<p id="result"></p>
 
 <script>
-    const BASE_URL = "https://url-shortner-93v4.onrender.com";
+const BASE_URL = "https://url-shortner-93v4.onrender.com";
 
-    async function shortenUrl() {
-        const originalUrl = document.getElementById("originalUrl").value;
-        const resultDiv = document.getElementById("result");
+async function shorten() {
+    const url = document.getElementById("url").value;
+    const result = document.getElementById("result");
 
-        if (!originalUrl) {
-            showResult("❌ Please enter a valid URL", "error");
+    if (!url) {
+        result.innerText = "Please enter a URL";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(url)}`,
+            { method: "POST" }
+        );
+
+        if (!response.ok) {
+            result.innerText = "Error while shortening URL";
             return;
         }
 
-        showResult("⏳ Shortening URL...", "loading");
+        const data = await response.json();
 
-        try {
-            const response = await fetch(
-                `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(originalUrl)}`,
-                { method: "POST" }
-            );
+        const redirectUrl = `${BASE_URL}/redirect/${data.shortUrl}`;
 
-            if (!response.ok) {
-                const text = await response.text();
-                throw new Error(text);
-            }
-
-            const data = await response.json();
-            const shortLink = `${BASE_URL}/redirect/${data.shortUrl}`;
-
-            showResult(`
-                ✅ <b>URL Shortened Successfully</b><br><br>
-                <b>Original:</b> <a href="${data.originalUrl}" target="_blank">${data.originalUrl}</a><br>
-                <b>Short URL:</b> <a href="${shortLink}" target="_blank">${shortLink}</a><br><br>
-                <button onclick="copyText('${shortLink}')">📋 Copy</button>
-            `, "success");
-
-        } catch (err) {
-            showResult("❌ Backend not reachable. Please try again in 10 seconds.", "error");
-        }
+        result.innerHTML = `
+            ✅ Short URL Created<br><br>
+            <a href="${redirectUrl}" target="_blank">${redirectUrl}</a>
+        `;
+    } catch (e) {
+        result.innerText = "Network error. Backend not reachable.";
     }
-
-    function copyText(text) {
-        navigator.clipboard.writeText(text);
-        alert("Copied!");
-    }
-
-    function showResult(msg, type) {
-        const div = document.getElementById("result");
-        div.className = `result ${type}`;
-        div.style.display = "block";
-        div.innerHTML = msg;
-    }
+}
 </script>
+
 </body>
 </html>
