@@ -27,6 +27,6 @@ public class UrlService {
     private String generateShortUrl() {
         Random random = new Random();
         int randomNum = 100000 + random.nextInt(900000);
-        return "short.ly/" + randomNum;
+        return String.valueOf(randomNum);
     }
 }

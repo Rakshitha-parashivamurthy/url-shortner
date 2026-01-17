@@ -19,8 +19,8 @@ public class RedirectController {
 
     @GetMapping("/redirect/{shortCode}")
     public void redirect(@PathVariable String shortCode, HttpServletResponse response) throws IOException {
-        String shortUrl = "short.ly/" + shortCode;
-        String originalUrl = urlService.getOriginalUrl(shortUrl);
+        // shortCode is the stored short identifier (e.g. "708869")
+        String originalUrl = urlService.getOriginalUrl(shortCode);
         
         if (originalUrl != null && !originalUrl.isEmpty()) {
             response.sendRedirect(originalUrl);
