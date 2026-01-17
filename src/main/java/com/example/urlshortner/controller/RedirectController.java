@@ -22,6 +22,11 @@ public class RedirectController {
     ) throws IOException {
 
         String originalUrl = urlService.getOriginalUrl(shortCode);
-        response.sendRedirect(originalUrl);
+
+        if (originalUrl != null) {
+            response.sendRedirect(originalUrl);
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "URL not found");
+        }
     }
 }
