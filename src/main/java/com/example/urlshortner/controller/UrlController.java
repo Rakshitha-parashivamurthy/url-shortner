@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/url")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "*")
 public class UrlController {
 
     @Autowired
@@ -23,4 +23,3 @@ public class UrlController {
         return urlService.getOriginalUrl(shortUrl);
     }
 }
-

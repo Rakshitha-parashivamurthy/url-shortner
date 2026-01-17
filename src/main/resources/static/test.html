@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>URL Shortener Test</title>
 </head>
 <body>
 
 <h2>🔗 URL Shortener</h2>
 
-<input type="text" id="urlInput" placeholder="https://example.com">
+<input type="text" id="url" placeholder="https://example.com">
 <button onclick="shorten()">Shorten</button>
 
 <p id="result"></p>
@@ -17,21 +16,21 @@
     const BASE_URL = "https://url-shortner-93v4.onrender.com";
 
     async function shorten() {
-        const originalUrl = document.getElementById("urlInput").value;
+        const originalUrl = document.getElementById("url").value;
 
         try {
-            const response = await fetch(
+            const res = await fetch(
                 `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(originalUrl)}`,
                 { method: "POST" }
             );
 
-            const data = await response.json();
+            const data = await res.json();
 
             document.getElementById("result").innerHTML =
-                `Short URL: <a href="${BASE_URL}/redirect/${data.shortUrl}" target="_blank">
+                `<a href="${BASE_URL}/redirect/${data.shortUrl}" target="_blank">
                 ${BASE_URL}/redirect/${data.shortUrl}</a>`;
 
-        } catch (e) {
+        } catch {
             document.getElementById("result").innerText = "❌ Network Error";
         }
     }
