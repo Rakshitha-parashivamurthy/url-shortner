@@ -4,50 +4,37 @@
     <meta charset="UTF-8">
     <title>URL Shortener Test</title>
 </head>
-<body style="font-family: Arial; padding: 30px">
+<body>
 
-<h2>🔗 URL Shortener Test</h2>
+<h2>🔗 URL Shortener</h2>
 
-<input type="text" id="url" placeholder="https://example.com" style="width: 300px">
+<input type="text" id="urlInput" placeholder="https://example.com">
 <button onclick="shorten()">Shorten</button>
 
 <p id="result"></p>
 
 <script>
-const BASE_URL = "https://url-shortner-93v4.onrender.com";
+    const BASE_URL = "https://url-shortner-93v4.onrender.com";
 
-async function shorten() {
-    const url = document.getElementById("url").value;
-    const result = document.getElementById("result");
+    async function shorten() {
+        const originalUrl = document.getElementById("urlInput").value;
 
-    if (!url) {
-        result.innerText = "Please enter a URL";
-        return;
-    }
+        try {
+            const response = await fetch(
+                `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(originalUrl)}`,
+                { method: "POST" }
+            );
 
-    try {
-        const response = await fetch(
-            `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(url)}`,
-            { method: "POST" }
-        );
+            const data = await response.json();
 
-        if (!response.ok) {
-            result.innerText = "Error while shortening URL";
-            return;
+            document.getElementById("result").innerHTML =
+                `Short URL: <a href="${BASE_URL}/redirect/${data.shortUrl}" target="_blank">
+                ${BASE_URL}/redirect/${data.shortUrl}</a>`;
+
+        } catch (e) {
+            document.getElementById("result").innerText = "❌ Network Error";
         }
-
-        const data = await response.json();
-
-        const redirectUrl = `${BASE_URL}/redirect/${data.shortUrl}`;
-
-        result.innerHTML = `
-            ✅ Short URL Created<br><br>
-            <a href="${redirectUrl}" target="_blank">${redirectUrl}</a>
-        `;
-    } catch (e) {
-        result.innerText = "Network error. Backend not reachable.";
     }
-}
 </script>
 
 </body>

@@ -1,12 +1,27 @@
-import org.springframework.web.bind.annotation.CrossOrigin;
+package com.example.urlshortner.controller;
 
-@CrossOrigin(origins = "*")
-@RestController
-@RequestMapping("/api/url")
+import com.example.urlshortner.service.UrlService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Controller
 public class RedirectController {
 
-    @PostMapping("/shorten")
-    public UrlMapping shortenUrl(@RequestParam String originalUrl) {
-        ...
+    @Autowired
+    private UrlService urlService;
+
+    @GetMapping("/redirect/{shortCode}")
+    public void redirectToOriginalUrl(
+            @PathVariable String shortCode,
+            HttpServletResponse response
+    ) throws IOException {
+
+        String originalUrl = urlService.getOriginalUrl(shortCode);
+        response.sendRedirect(originalUrl);
     }
 }
