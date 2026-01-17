@@ -19,10 +19,12 @@
         const originalUrl = document.getElementById("url").value;
 
         try {
-            const res = await fetch(
-                `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(originalUrl)}`,
-                { method: "POST" }
-            );
+            const response = await fetch(
+  "https://url-shortner-93v4.onrender.com/api/url/shorten?originalUrl=" 
+  + encodeURIComponent(originalUrl),
+  { method: "POST" }
+);
+
 
             const data = await res.json();
 
