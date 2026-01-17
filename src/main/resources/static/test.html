@@ -2,25 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>URL Shortener Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f4f6f8;
-    padding: 40px;
+    padding: 20px;
 }
 .container {
     max-width: 600px;
-    background: white;
     margin: auto;
+    background: #fff;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+h1 {
+    text-align: center;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
 }
 button {
-    padding: 10px 20px;
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
     background: #007bff;
     color: white;
     border: none;
@@ -32,18 +42,22 @@ button {
     padding: 15px;
     border-radius: 5px;
 }
-.error { background: #f8d7da; color: #721c24; }
-.success { background: #d4edda; color: #155724; }
+.success {
+    background: #d4edda;
+    color: #155724;
+}
+.error {
+    background: #f8d7da;
+    color: #721c24;
+}
 </style>
 </head>
 
 <body>
-
 <div class="container">
-    <h2>🔗 URL Shortener Test</h2>
+    <h1>🔗 URL Shortener</h1>
 
-    <input type="url" id="originalUrl" placeholder="https://example.com" style="width:100%;padding:10px;">
-    <br><br>
+    <input type="url" id="urlInput" placeholder="https://example.com" required>
 
     <button onclick="shortenUrl()">Shorten URL</button>
 
@@ -51,48 +65,47 @@ button {
 </div>
 
 <script>
-const BASE_URL = "https://url-shortner-93v4.onrender.com";
+const API_BASE = "https://url-shortner-93v4.onrender.com";
 
 async function shortenUrl() {
-    const url = document.getElementById("originalUrl").value;
+    const url = document.getElementById("urlInput").value;
     const result = document.getElementById("result");
 
     if (!url) {
-        show("Please enter a URL", "error");
+        showResult("Please enter a URL", "error");
         return;
     }
 
     try {
-        const res = await fetch(
-            `${BASE_URL}/api/url/shorten?originalUrl=${encodeURIComponent(url)}`,
+        const response = await fetch(
+            `${API_BASE}/api/url/shorten?originalUrl=${encodeURIComponent(url)}`,
             { method: "POST" }
         );
 
-        if (!res.ok) {
-            throw new Error("Failed to shorten URL");
+        if (!response.ok) {
+            throw new Error("Server error");
         }
 
-        const data = await res.json();
-        const redirectUrl = `${BASE_URL}/redirect/${data.shortUrl}`;
+        const data = await response.json();
+        const shortLink = `${API_BASE}/redirect/${data.shortUrl}`;
 
-        show(`
-            <b>Shortened Successfully 🎉</b><br><br>
-            <b>Short URL:</b> 
-            <a href="${redirectUrl}" target="_blank">${redirectUrl}</a>
-        `, "success");
+        showResult(
+            `<strong>Short URL:</strong><br>
+             <a href="${shortLink}" target="_blank">${shortLink}</a>`,
+            "success"
+        );
 
     } catch (err) {
-        show("Backend not reachable ❌", "error");
+        showResult("❌ Failed to connect to server", "error");
     }
 }
 
-function show(msg, type) {
-    const r = document.getElementById("result");
-    r.innerHTML = msg;
-    r.className = "result " + type;
-    r.style.display = "block";
+function showResult(msg, type) {
+    const result = document.getElementById("result");
+    result.style.display = "block";
+    result.className = `result ${type}`;
+    result.innerHTML = msg;
 }
 </script>
-
 </body>
 </html>
