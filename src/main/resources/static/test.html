@@ -1,42 +1,381 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Shortener Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: 10px 16px;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .result-box {
+            background: #d1fae5;
+            border: 2px solid #6ee7b7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box h3 {
+            color: #065f46;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-box p {
+            color: #047857;
+            font-size: 14px;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .result-box a {
+            color: #0066cc;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .result-box a:hover {
+            text-decoration: underline;
+        }
+
+        .api-info {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .api-info h3 {
+            color: #1e40af;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .api-item {
+            color: #1e3a8a;
+            font-size: 13px;
+            margin: 10px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .api-item strong {
+            color: #1e40af;
+        }
+
+        .curl-example {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+
+        .curl-example .comment {
+            color: #6b7280;
+        }
+
+        .error-box {
+            background: #fee2e2;
+            border: 2px solid #fca5a5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+            color: #991b1b;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .copy-buttons {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .btn-secondary {
+                margin-right: 0;
+                width: 100%;
+                margin-top: 6px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <span style="font-size: 28px;">🔗</span>
+            <h1>URL Shortener Test</h1>
+        </div>
 
-<h2>🔗 URL Shortener</h2>
+        <div class="input-group">
+            <label for="urlInput">Enter URL to shorten:</label>
+            <input 
+                type="text" 
+                id="urlInput" 
+                placeholder="https://youtu.be/8qyLqnEeZHQ?si=lEJwVOY7eN3lSnkb"
+                value="https://youtu.be/8qyLqnEeZHQ?si=lEJwVOY7eN3lSnkb"
+            >
+        </div>
 
-<input type="text" id="url" placeholder="https://example.com">
-<button onclick="shorten()">Shorten</button>
+        <button class="btn btn-primary" onclick="shortenUrl()">Shorten URL</button>
 
-<p id="result"></p>
+        <div id="resultBox" class="result-box">
+            <h3>✅ URL shortened successfully!</h3>
+            <p><strong>Original URL:</strong> <a id="originalUrl" href="#" target="_blank"></a></p>
+            <p><strong>Short URL ID:</strong> <span id="shortUrlId"></span></p>
+            <p><strong>Browser Link:</strong> <a id="browserLink" href="#" target="_blank"></a></p>
+            <p><strong>ID:</strong> <span id="dbId"></span></p>
+            <div class="copy-buttons">
+                <button class="btn btn-secondary" onclick="copyBrowserLink()">📋 Copy Browser Link</button>
+                <button class="btn btn-secondary" onclick="copyShortId()">📋 Copy Short ID</button>
+            </div>
+        </div>
 
-<script>
-    const BASE_URL = "https://url-shortner-93v4.onrender.com";
+        <div id="errorBox" class="error-box">
+            <strong>❌ Error:</strong> <span id="errorMessage"></span>
+        </div>
 
-    async function shorten() {
-        const originalUrl = document.getElementById("url").value;
+        <div class="api-info">
+            <h3>📋 API Information</h3>
+            <p><strong>Application Status:</strong> <span class="status-indicator"></span> Running on <code>http://localhost:8080</code></p>
+            
+            <div style="margin-top: 12px;">
+                <p><strong>Shorten URL:</strong> <code>POST /api/url/shorten?originalUrl={url}</code></p>
+                <p><strong>Get Original URL (API):</strong> <code>GET /api/url/{shortUrl}</code></p>
+                <p><strong>Redirect in Browser:</strong> <code>GET /redirect/{shortCode}</code></p>
+            </div>
 
-        try {
-            const response = await fetch(
-  "https://url-shortner-93v4.onrender.com/api/url/shorten?originalUrl=" 
-  + encodeURIComponent(originalUrl),
-  { method: "POST" }
-);
+            <p style="margin-top: 12px;"><strong>Example using cURL:</strong></p>
+            <div class="curl-example">
+<span class="comment"># Shorten a URL</span><br>
+curl -X POST "http://localhost:8080/api/url/shorten?originalUrl=https://www.google.com"<br>
+<br>
+<span class="comment"># Response:</span><br>
+# {"id":1,"originalUrl":"https://www.google.com","shortUrl":"123456"}<br>
+<br>
+<span class="comment"># Then visit in browser:</span><br>
+# http://localhost:8080/redirect/123456
+            </div>
+        </div>
+    </div>
 
+    <script>
+        function shortenUrl() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const errorBox = document.getElementById('errorBox');
 
-            const data = await res.json();
+            if (!urlInput) {
+                showError('Please enter a URL');
+                return;
+            }
 
-            document.getElementById("result").innerHTML =
-                `<a href="${BASE_URL}/redirect/${data.shortUrl}" target="_blank">
-                ${BASE_URL}/redirect/${data.shortUrl}</a>`;
+            resultBox.classList.remove('show');
+            errorBox.classList.remove('show');
 
-        } catch {
-            document.getElementById("result").innerText = "❌ Network Error";
+            fetch(`http://localhost:8080/api/url/shorten?originalUrl=${encodeURIComponent(urlInput)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to shorten URL. Status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const shortCode = data.shortUrl.split('/').pop();
+                const browserLink = `http://localhost:8080/redirect/${shortCode}`;
+
+                document.getElementById('originalUrl').href = urlInput;
+                document.getElementById('originalUrl').textContent = urlInput;
+                document.getElementById('shortUrlId').textContent = data.shortUrl;
+                document.getElementById('browserLink').href = browserLink;
+                document.getElementById('browserLink').textContent = browserLink;
+                document.getElementById('dbId').textContent = data.id;
+
+                resultBox.classList.add('show');
+                errorBox.classList.remove('show');
+            })
+            .catch(error => {
+                showError(error.message);
+            });
         }
-    }
-</script>
 
+        function showError(message) {
+            const errorBox = document.getElementById('errorBox');
+            document.getElementById('errorMessage').textContent = message;
+            errorBox.classList.add('show');
+        }
+
+        function copyBrowserLink() {
+            const link = document.getElementById('browserLink').textContent;
+            copyToClipboard(link);
+        }
+
+        function copyShortId() {
+            const id = document.getElementById('shortUrlId').textContent;
+            copyToClipboard(id);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard: ' + text);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Allow Enter key to shorten URL
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                shortenUrl();
+            }
+        });
+    </script>
 </body>
 </html>
